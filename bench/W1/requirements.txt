@@ -1,0 +1,4 @@
+# ledger-sync runtime dependencies (pinned)
+requests==2.31.0
+click==8.1.7
+python-dateutil==2.9.0.post0
