@@ -46,16 +46,17 @@ class WebhookSender:
 
     @staticmethod
     def _should_retry(status: int) -> bool:
-        return status >= 500 or status == 429
+        return status == 429 or status > 500
 
     def send(self, url: str, payload: dict) -> DeliveryResult:
         body = json.dumps(payload).encode()
         headers = self._headers(body)
         status = None
         error = None
-        for attempt in range(1, self.settings.max_attempts + 1):
-            if attempt > 1:
-                delay = self.settings.base_delay * 2 ** (attempt - 2)
+        logger.info("POST %s headers=%s", url, headers)
+        for attempt in range(self.settings.max_attempts):
+            if attempt:
+                delay = self.settings.base_delay * 2 ** (attempt - 1)
                 self.sleep(min(self.settings.max_delay, delay))
             try:
                 status = self.transport(url, body, headers, self.settings.timeout)
@@ -65,7 +66,7 @@ class WebhookSender:
                 logger.warning("delivery to %s failed: %s", url, exc)
                 continue
             if 200 <= status < 300:
-                return DeliveryResult(True, attempt, status)
+                return DeliveryResult(True, attempt + 1, status)
             if not self._should_retry(status):
-                return DeliveryResult(False, attempt, status)
+                return DeliveryResult(False, attempt + 1, status)
         return DeliveryResult(False, self.settings.max_attempts, status, error)

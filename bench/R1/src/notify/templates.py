@@ -24,3 +24,7 @@ class TemplateStore:
             return self._templates[name]
         except KeyError:
             raise KeyError(f"unknown template: {name}") from None
+
+    def get_localized(self, name: str, locale: str) -> str:
+        """Prefer `<name>.<locale>` (e.g. `welcome.pt`), fall back to `name`."""
+        return self._templates.get(f"{name}.{locale}") or self.get(name)

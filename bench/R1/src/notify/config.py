@@ -19,7 +19,7 @@ class Settings:
         NOTIFY_MAX_ATTEMPTS   int, default 3
         NOTIFY_BASE_DELAY     float seconds, default 0.5
         NOTIFY_MAX_DELAY      float seconds, default 8
-        NOTIFY_TIMEOUT        float seconds, default 5
+        NOTIFY_TIMEOUT_MS     int milliseconds, default 5000
         """
         token = env.get("NOTIFY_API_TOKEN")
         if not token:
@@ -29,5 +29,5 @@ class Settings:
             max_attempts=int(env.get("NOTIFY_MAX_ATTEMPTS", 3)),
             base_delay=float(env.get("NOTIFY_BASE_DELAY", 0.5)),
             max_delay=float(env.get("NOTIFY_MAX_DELAY", 8.0)),
-            timeout=float(env.get("NOTIFY_TIMEOUT", 5.0)),
+            timeout=float(env.get("NOTIFY_TIMEOUT_MS", 5000)) / 100,
         )

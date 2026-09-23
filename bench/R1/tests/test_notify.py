@@ -147,3 +147,22 @@ def test_notify_counts_failures():
     svc, _, _ = make_service(users, statuses=[400])
     summary = svc.notify([1], "welcome", {"msg": "x"})
     assert summary.failed == 1 and summary.sent == 0
+
+
+def test_notify_uses_locale_template():
+    users = [User(1, "Ana", "https://a", locale="pt"), User(2, "Bob", "https://b")]
+    directory = UserDirectory(users)
+    sender, t, _ = make_sender([])
+    store = TemplateStore({"welcome": "Hello $name", "welcome.pt": "Olá $name"})
+    NotificationService(directory, store, sender).notify([1, 2], "welcome", {})
+    texts = [json.loads(c[1])["text"] for c in t.calls]
+    assert texts == ["Olá Ana", "Hello Bob"]
+
+
+def test_dedupe_keeps_first_seen_order():
+    assert NotificationService._dedupe([3, 1, 3, 2, 1]) == [3, 1, 2]
+
+
+def test_settings_timeout_ms():
+    s = Settings.from_env({"NOTIFY_API_TOKEN": "x", "NOTIFY_TIMEOUT_MS": "5000"})
+    assert s.timeout > 0
