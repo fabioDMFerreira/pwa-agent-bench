@@ -1,3 +1,4 @@
+import asyncio
 import json
 import sys
 
@@ -16,9 +17,9 @@ def main(argv=None) -> int:
     user_ids = [int(a) for a in argv] or [1]
     try:
         if len(user_ids) == 1:
-            result = run_pipeline(user_ids[0])
+            result = asyncio.run(run_pipeline(user_ids[0]))
         else:
-            result = run_many(user_ids)
+            result = asyncio.run(run_many(user_ids))
     except UserNotFound as exc:
         print(f"error: user not found: {exc.args[0]}", file=sys.stderr)
         return 1
