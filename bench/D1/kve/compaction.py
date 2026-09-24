@@ -23,9 +23,9 @@ def compact(segment_paths, out_path: Path) -> int:
     the output (tombstones excluded).
     """
     survivors: dict[str, str | None] = {}
-    # Newest first: process higher-priority (newest) segments ahead so the
-    # merge stays cache-local; earlier segments fill in anything missing.
-    for path in reversed(segment_paths):
+    # Oldest first: each entry overwrites the previous one, so the newest
+    # segment's value (or tombstone) is the one that survives.
+    for path in segment_paths:
         for op, key, value in log.replay_segment(Path(path)):
             survivors[key] = None if op == "delete" else value
 

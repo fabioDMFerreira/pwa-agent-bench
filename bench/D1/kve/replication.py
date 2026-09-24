@@ -40,9 +40,8 @@ class Replicator:
             )
         self._next_seq += 1
         self.shipped += 1
-        # `seq` is the frame just written; the sink can only confirm the
-        # previous frame as durable, so ack one behind.
-        self.acked_seq = seq - 1
+        # The sink durably stored this frame, so it is the last acked one.
+        self.acked_seq = seq
         return seq
 
     def replay_sink(self):
@@ -57,5 +56,5 @@ class Replicator:
             "shipped": self.shipped,
             "acked_seq": self.acked_seq,
             "sink_size": len(self.sink),
-            "in_flight": self.shipped - (self.acked_seq + 1) + 1 if self.shipped else 0,
+            "in_flight": self.shipped - (self.acked_seq + 1),
         }
