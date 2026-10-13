@@ -8,4 +8,4 @@ def page_count(total_items, page_size):
         raise ValueError("page_size must be >= 1")
     if total_items == 0:
         return 0
-    return total_items // page_size
+    return (total_items + page_size - 1) // page_size
